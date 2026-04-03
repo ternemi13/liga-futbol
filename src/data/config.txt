@@ -1,0 +1,9 @@
+nombreLiga=La Liga
+puntosGanar=3
+puntosEmpate=1
+puntosPerder=0
+
+equipo=Real Madrid
+equipo=Barcelona
+equipo=Atletico Madrid
+equipo=Junior Barranquilla
