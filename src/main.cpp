@@ -29,7 +29,7 @@ int main() {
     string nombreLiga;
     int puntosGanar, puntosEmpate, puntosPerder;
 
-   vector<Equipo> equipos;
+    vector<Equipo> equipos;
 
     do {
         cout << "\n=== SISTEMA DE LIGA ===\n";
@@ -42,150 +42,216 @@ int main() {
         cin >> opcion;
 
         switch(opcion) {
-           case 1: {
 
-    ifstream archivo("data/config.txt");
+        case 1: {
 
-    if (!archivo) {
-        cout << "Error al abrir config.txt\n";
-        break;
-    }
+            equipos.clear();
 
-    string linea;
+            
+            ifstream config("data/config.txt");
 
-    while (getline(archivo, linea)) {
-
-        if (linea.empty()) continue;
-
-        stringstream ss(linea);
-        string clave, valor;
-
-        getline(ss, clave, '=');
-        getline(ss, valor);
-
-        if (clave == "nombreLiga") {
-            nombreLiga = valor;
-        }
-        else if (clave == "puntosGanar") {
-            puntosGanar = stoi(valor);
-        }
-        else if (clave == "puntosEmpate") {
-            puntosEmpate = stoi(valor);
-        }
-        else if (clave == "puntosPerder") {
-            puntosPerder = stoi(valor);
-        }
-        else if (clave == "equipo") {
-    Equipo nuevo;
-    nuevo.nombre = valor;
-    equipos.push_back(nuevo);
-}
-    }
-
-    archivo.close();
-
-    cout << "\nLiga: " << nombreLiga << endl;
-    cout << "Puntos por ganar: " << puntosGanar << endl;
-    cout << "Puntos por empate: " << puntosEmpate << endl;
-    cout << "Puntos por perder: " << puntosPerder << endl;
-
-    cout << "\nEquipos:\n";
-    for (int i = 0; i < equipos.size(); i++) {
-        cout << "- " << equipos[i].nombre << endl;
-    }
-
-    break;
-}
-
-            case 2: {
-    ifstream archivo("data/config.txt");
-
-    if (!archivo) {
-        cout << "Error al abrir config.txt\n";
-        break;
-    }
-
-    equipos.clear(); // evitar duplicados
-
-    string linea;
-
-    while (getline(archivo, linea)) {
-
-        if (linea.empty()) continue;
-
-        stringstream ss(linea);
-        string clave, valor;
-
-        getline(ss, clave, '=');
-        getline(ss, valor);
-
-        if (clave == "equipo") {
-            Equipo nuevo;
-            nuevo.nombre = valor;
-            equipos.push_back(nuevo);
-        }
-    }
-
-    archivo.close();
-
-    cout << "\nEquipos disponibles:\n";
-    for (int i = 0; i < equipos.size(); i++) {
-        cout << i + 1 << ". " << equipos[i].nombre << endl;
-    }
-
-    int local, visitante;
-    int golesLocal, golesVisitante;
-
-    cout << "Seleccione equipo local (numero): ";
-    cin >> local;
-
-    cout << "Seleccione equipo visitante (numero): ";
-    cin >> visitante;
-
-    if (local == visitante) {
-        cout << "No pueden ser el mismo equipo\n";
-        break;
-    }
-
-    cout << "Goles del equipo local: ";
-    cin >> golesLocal;
-
-    cout << "Goles del equipo visitante: ";
-    cin >> golesVisitante;
-
-    ofstream archivoSalida("data/partidos.txt", ios::app);
-
-    if (!archivoSalida) {
-        cout << "Error al guardar partido\n";
-        break;
-    }
-
-    archivoSalida << equipos[local - 1].nombre << ","
-                  << equipos[visitante - 1].nombre << ","
-                  << golesLocal << ","
-                  << golesVisitante << endl;
-
-    archivoSalida.close();
-
-    cout << "Partido guardado correctamente\n";
-
-    break;
-}
-
-            case 3:
-                cout << "Mostrando jornadas...\n";
+            if (!config) {
+                cout << "Error al abrir config.txt\n";
                 break;
+            }
 
-            case 4:
-                cout << "Mostrando partidos...\n";
+            string linea;
+
+            while (getline(config, linea)) {
+
+                if (linea.empty()) continue;
+
+                stringstream ss(linea);
+                string clave, valor;
+
+                getline(ss, clave, '=');
+                getline(ss, valor);
+
+                if (clave == "puntosGanar") puntosGanar = stoi(valor);
+                else if (clave == "puntosEmpate") puntosEmpate = stoi(valor);
+                else if (clave == "puntosPerder") puntosPerder = stoi(valor);
+
+                else if (clave == "equipo") {
+                    Equipo nuevo;
+                    nuevo.nombre = valor;
+                    nuevo.PJ = 0;
+                    nuevo.PG = 0;
+                    nuevo.PE = 0;
+                    nuevo.PP = 0;
+                    nuevo.GF = 0;
+                    nuevo.GC = 0;
+                    nuevo.puntos = 0;
+
+                    equipos.push_back(nuevo);
+                }
+            }
+
+            config.close();
+
+            // 🔹 LEER PARTIDOS
+            ifstream archivo("data/partidos.txt");
+
+            if (!archivo) {
+                cout << "Error al abrir partidos.txt\n";
                 break;
+            }
 
-            case 5:
-                cout << "Saliendo del programa...\n";
+            while (getline(archivo, linea)) {
+
+                if (linea.empty()) continue;
+
+                stringstream ss(linea);
+                string local, visitante;
+                int golesLocal, golesVisitante;
+
+                getline(ss, local, ',');
+                getline(ss, visitante, ',');
+                ss >> golesLocal;
+                ss.ignore();
+                ss >> golesVisitante;
+
+                for (int i = 0; i < equipos.size(); i++) {
+
+                    if (equipos[i].nombre == local) {
+                        equipos[i].PJ++;
+                        equipos[i].GF += golesLocal;
+                        equipos[i].GC += golesVisitante;
+
+                        if (golesLocal > golesVisitante) {
+                            equipos[i].PG++;
+                            equipos[i].puntos += puntosGanar;
+                        } else if (golesLocal == golesVisitante) {
+                            equipos[i].PE++;
+                            equipos[i].puntos += puntosEmpate;
+                        } else {
+                            equipos[i].PP++;
+                            equipos[i].puntos += puntosPerder;
+                        }
+                    }
+
+                    if (equipos[i].nombre == visitante) {
+                        equipos[i].PJ++;
+                        equipos[i].GF += golesVisitante;
+                        equipos[i].GC += golesLocal;
+
+                        if (golesVisitante > golesLocal) {
+                            equipos[i].PG++;
+                            equipos[i].puntos += puntosGanar;
+                        } else if (golesVisitante == golesLocal) {
+                            equipos[i].PE++;
+                            equipos[i].puntos += puntosEmpate;
+                        } else {
+                            equipos[i].PP++;
+                            equipos[i].puntos += puntosPerder;
+                        }
+                    }
+                }
+            }
+
+            archivo.close();
+
+            cout << "\n=== TABLA DE POSICIONES ===\n";
+
+            for (int i = 0; i < equipos.size(); i++) {
+                cout << equipos[i].nombre
+                     << " | PJ: " << equipos[i].PJ
+                     << " | PTS: " << equipos[i].puntos
+                     << endl;
+            }
+
+            break;
+        }
+
+        case 2: {
+
+            ifstream archivo("data/config.txt");
+
+            if (!archivo) {
+                cout << "Error al abrir config.txt\n";
                 break;
+            }
 
-            default:
-                cout << "Opcion invalida\n";
+            equipos.clear();
+
+            string linea;
+
+            while (getline(archivo, linea)) {
+
+                if (linea.empty()) continue;
+
+                stringstream ss(linea);
+                string clave, valor;
+
+                getline(ss, clave, '=');
+                getline(ss, valor);
+
+                if (clave == "equipo") {
+                    Equipo nuevo;
+                    nuevo.nombre = valor;
+                    equipos.push_back(nuevo);
+                }
+            }
+
+            archivo.close();
+
+            cout << "\nEquipos disponibles:\n";
+            for (int i = 0; i < equipos.size(); i++) {
+                cout << i + 1 << ". " << equipos[i].nombre << endl;
+            }
+
+            int local, visitante;
+            int golesLocal, golesVisitante;
+
+            cout << "Seleccione equipo local (numero): ";
+            cin >> local;
+
+            cout << "Seleccione equipo visitante (numero): ";
+            cin >> visitante;
+
+            if (local == visitante) {
+                cout << "No pueden ser el mismo equipo\n";
+                break;
+            }
+
+            cout << "Goles del equipo local: ";
+            cin >> golesLocal;
+
+            cout << "Goles del equipo visitante: ";
+            cin >> golesVisitante;
+
+            ofstream archivoSalida("data/partidos.txt", ios::app);
+
+            if (!archivoSalida) {
+                cout << "Error al guardar partido\n";
+                break;
+            }
+
+            archivoSalida << equipos[local - 1].nombre << ","
+                          << equipos[visitante - 1].nombre << ","
+                          << golesLocal << ","
+                          << golesVisitante << endl;
+
+            archivoSalida.close();
+
+            cout << "Partido guardado correctamente\n";
+
+            break;
+        }
+
+        case 3:
+            cout << "Mostrando jornadas...\n";
+            break;
+
+        case 4:
+            cout << "Mostrando partidos...\n";
+            break;
+
+        case 5:
+            cout << "Saliendo del programa...\n";
+            break;
+
+        default:
+            cout << "Opcion invalida\n";
         }
 
     } while(opcion != 5);
