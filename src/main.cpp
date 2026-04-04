@@ -2,13 +2,16 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
 using namespace std;
 
 int main() {
 
     int opcion;
     string nombreLiga;
-int puntosGanar, puntosEmpate, puntosPerder;
+    int puntosGanar, puntosEmpate, puntosPerder;
+
+    vector<string> equipos;
 
     do {
         cout << "\n=== SISTEMA DE LIGA ===\n";
@@ -22,6 +25,7 @@ int puntosGanar, puntosEmpate, puntosPerder;
 
         switch(opcion) {
            case 1: {
+
     ifstream archivo("data/config.txt");
 
     if (!archivo) {
@@ -53,6 +57,9 @@ int puntosGanar, puntosEmpate, puntosPerder;
         else if (clave == "puntosPerder") {
             puntosPerder = stoi(valor);
         }
+        else if (clave == "equipo") {
+            equipos.push_back(valor);
+        }
     }
 
     archivo.close();
@@ -61,6 +68,11 @@ int puntosGanar, puntosEmpate, puntosPerder;
     cout << "Puntos por ganar: " << puntosGanar << endl;
     cout << "Puntos por empate: " << puntosEmpate << endl;
     cout << "Puntos por perder: " << puntosPerder << endl;
+
+    cout << "\nEquipos:\n";
+    for (int i = 0; i < equipos.size(); i++) {
+        cout << "- " << equipos[i] << endl;
+    }
 
     break;
 }
