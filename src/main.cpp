@@ -1,11 +1,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 int main() {
 
     int opcion;
+    string nombreLiga;
+int puntosGanar, puntosEmpate, puntosPerder;
 
     do {
         cout << "\n=== SISTEMA DE LIGA ===\n";
@@ -18,25 +21,49 @@ int main() {
         cin >> opcion;
 
         switch(opcion) {
-            case 1: {
-                ifstream archivo("data/config.txt");
+           case 1: {
+    ifstream archivo("data/config.txt");
 
-                if (!archivo) {
-                    cout << "Error al abrir config.txt\n";
-                    break;
-                }
+    if (!archivo) {
+        cout << "Error al abrir config.txt\n";
+        break;
+    }
 
-                string linea;
+    string linea;
 
-                cout << "\nContenido de config.txt:\n";
+    while (getline(archivo, linea)) {
 
-                while (getline(archivo, linea)) {
-                    cout << linea << endl;
-                }
+        if (linea.empty()) continue;
 
-                archivo.close();
-                break;
-            }
+        stringstream ss(linea);
+        string clave, valor;
+
+        getline(ss, clave, '=');
+        getline(ss, valor);
+
+        if (clave == "nombreLiga") {
+            nombreLiga = valor;
+        }
+        else if (clave == "puntosGanar") {
+            puntosGanar = stoi(valor);
+        }
+        else if (clave == "puntosEmpate") {
+            puntosEmpate = stoi(valor);
+        }
+        else if (clave == "puntosPerder") {
+            puntosPerder = stoi(valor);
+        }
+    }
+
+    archivo.close();
+
+    cout << "\nLiga: " << nombreLiga << endl;
+    cout << "Puntos por ganar: " << puntosGanar << endl;
+    cout << "Puntos por empate: " << puntosEmpate << endl;
+    cout << "Puntos por perder: " << puntosPerder << endl;
+
+    break;
+}
 
             case 2:
                 cout << "Registrando partido...\n";
