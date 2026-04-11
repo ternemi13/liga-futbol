@@ -155,15 +155,24 @@ int main() {
             });
 
             cout << "\n=== TABLA DE POSICIONES ===\n";
+cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
 
-            for (int i = 0; i < equipos.size(); i++) {
-                cout << i + 1 << ". "
-                     << equipos[i].nombre
-                     << " | PJ: " << equipos[i].PJ
-                     << " | PTS: " << equipos[i].puntos
-                     << endl;
-            }
+for (int i = 0; i < equipos.size(); i++) {
 
+    int DG = equipos[i].GF - equipos[i].GC;
+
+    cout << i + 1 << " "
+         << equipos[i].nombre << " "
+         << equipos[i].PJ << " "
+         << equipos[i].PG << " "
+         << equipos[i].PE << " "
+         << equipos[i].PP << " "
+         << equipos[i].GF << " "
+         << equipos[i].GC << " "
+         << DG << " "
+         << equipos[i].puntos
+         << endl;
+}
             break;
         }
 
