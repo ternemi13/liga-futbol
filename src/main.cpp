@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 struct Equipo {
@@ -47,7 +48,6 @@ int main() {
 
             equipos.clear();
 
-            
             ifstream config("data/config.txt");
 
             if (!config) {
@@ -88,7 +88,6 @@ int main() {
 
             config.close();
 
-            // 🔹 LEER PARTIDOS
             ifstream archivo("data/partidos.txt");
 
             if (!archivo) {
@@ -150,10 +149,16 @@ int main() {
 
             archivo.close();
 
+            // 🔥 ORDENAR POR PUNTOS
+            sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
+                return a.puntos > b.puntos;
+            });
+
             cout << "\n=== TABLA DE POSICIONES ===\n";
 
             for (int i = 0; i < equipos.size(); i++) {
-                cout << equipos[i].nombre
+                cout << i + 1 << ". "
+                     << equipos[i].nombre
                      << " | PJ: " << equipos[i].PJ
                      << " | PTS: " << equipos[i].puntos
                      << endl;
