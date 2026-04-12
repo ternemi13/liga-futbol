@@ -17,6 +17,72 @@ struct Equipo {
     int puntos = 0;
 };
 
+
+void actualizarEquipo(Equipo* eq, int gf, int gc, int puntosGanar, int puntosEmpate, int puntosPerder) {
+
+    eq->PJ++;
+    eq->GF += gf;
+    eq->GC += gc;
+
+    if (gf > gc) {
+        eq->PG++;
+        eq->puntos += puntosGanar;
+    }
+    else if (gf == gc) {
+        eq->PE++;
+        eq->puntos += puntosEmpate;
+    }
+    else {
+        eq->PP++;
+        eq->puntos += puntosPerder;
+    }
+}
+
+
+void leerConfig(vector<Equipo>& equipos, int& puntosGanar, int& puntosEmpate, int& puntosPerder) {
+
+    equipos.clear();
+    ifstream config("data/config.txt");
+
+    string linea;
+
+    while (getline(config, linea)) {
+
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+        string clave, valor;
+
+        getline(ss, clave, '=');
+        getline(ss, valor);
+
+        if (clave == "puntosGanar") puntosGanar = stoi(valor);
+        else if (clave == "puntosEmpate") puntosEmpate = stoi(valor);
+        else if (clave == "puntosPerder") puntosPerder = stoi(valor);
+
+        else if (clave == "equipo") {
+            Equipo nuevo;
+            nuevo.nombre = valor;
+            equipos.push_back(nuevo);
+        }
+    }
+
+    config.close();
+}
+
+
+void ordenarEquipos(vector<Equipo>& equipos) {
+    sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
+        if (a.puntos != b.puntos)
+            return a.puntos > b.puntos;
+
+        int dgA = a.GF - a.GC;
+        int dgB = b.GF - b.GC;
+
+        return dgA > dgB;
+    });
+}
+
 int main() {
 
     int opcion;
@@ -39,46 +105,11 @@ int main() {
 
         case 1: {
 
-            equipos.clear();
-
-            ifstream config("data/config.txt");
-
-            if (!config) {
-                cout << "Error al abrir config.txt\n";
-                break;
-            }
-
-            string linea;
-
-            while (getline(config, linea)) {
-
-                if (linea.empty()) continue;
-
-                stringstream ss(linea);
-                string clave, valor;
-
-                getline(ss, clave, '=');
-                getline(ss, valor);
-
-                if (clave == "puntosGanar") puntosGanar = stoi(valor);
-                else if (clave == "puntosEmpate") puntosEmpate = stoi(valor);
-                else if (clave == "puntosPerder") puntosPerder = stoi(valor);
-
-                else if (clave == "equipo") {
-                    Equipo nuevo;
-                    nuevo.nombre = valor;
-                    equipos.push_back(nuevo);
-                }
-            }
-
-            config.close();
+            
+            leerConfig(equipos, puntosGanar, puntosEmpate, puntosPerder);
 
             ifstream archivo("data/partidos.txt");
-
-            if (!archivo) {
-                cout << "Error al abrir partidos.txt\n";
-                break;
-            }
+            string linea;
 
             while (getline(archivo, linea)) {
 
@@ -97,52 +128,21 @@ int main() {
                 for (int i = 0; i < equipos.size(); i++) {
 
                     if (equipos[i].nombre == local) {
-                        equipos[i].PJ++;
-                        equipos[i].GF += golesLocal;
-                        equipos[i].GC += golesVisitante;
-
-                        if (golesLocal > golesVisitante) {
-                            equipos[i].PG++;
-                            equipos[i].puntos += puntosGanar;
-                        } else if (golesLocal == golesVisitante) {
-                            equipos[i].PE++;
-                            equipos[i].puntos += puntosEmpate;
-                        } else {
-                            equipos[i].PP++;
-                            equipos[i].puntos += puntosPerder;
-                        }
+                        actualizarEquipo(&equipos[i], golesLocal, golesVisitante,
+                                         puntosGanar, puntosEmpate, puntosPerder);
                     }
 
                     if (equipos[i].nombre == visitante) {
-                        equipos[i].PJ++;
-                        equipos[i].GF += golesVisitante;
-                        equipos[i].GC += golesLocal;
-
-                        if (golesVisitante > golesLocal) {
-                            equipos[i].PG++;
-                            equipos[i].puntos += puntosGanar;
-                        } else if (golesVisitante == golesLocal) {
-                            equipos[i].PE++;
-                            equipos[i].puntos += puntosEmpate;
-                        } else {
-                            equipos[i].PP++;
-                            equipos[i].puntos += puntosPerder;
-                        }
+                        actualizarEquipo(&equipos[i], golesVisitante, golesLocal,
+                                         puntosGanar, puntosEmpate, puntosPerder);
                     }
                 }
             }
 
             archivo.close();
 
-            sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
-                if (a.puntos != b.puntos)
-                    return a.puntos > b.puntos;
-
-                int dgA = a.GF - a.GC;
-                int dgB = b.GF - b.GC;
-
-                return dgA > dgB;
-            });
+        
+            ordenarEquipos(equipos);
 
             ofstream archivoTabla("data/tabla.txt");
 
