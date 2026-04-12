@@ -89,6 +89,7 @@ void ordenarEquipos(vector<Equipo>& equipos) {
     return a.GF > b.GF;
 });
 }
+int numeroJornada = 1;
 
 int main() {
 
@@ -231,15 +232,28 @@ int main() {
             int local, visitante;
             int golesLocal, golesVisitante;
 
-            cin >> local;
-            cin >> visitante;
+            cout << "Seleccione equipo local: ";
+cin >> local;
+
+cout << "Seleccione equipo visitante: ";
+cin >> visitante;
+
+
+if (local < 1 || local > equipos.size() ||
+    visitante < 1 || visitante > equipos.size()) {
+
+    cout << "Equipo invalido\n";
+    break;
+}
 
             if (local == visitante) {
                 cout << "No pueden ser el mismo equipo\n";
                 break;
             }
 
+            cout << "Goles del equipo local: ";
             cin >> golesLocal;
+            cout << "Goles del equipo visitante: ";
             cin >> golesVisitante;
 
             ofstream archivoSalida("data/partidos.txt", ios::app);
@@ -254,63 +268,80 @@ int main() {
             
             ofstream archivoFechas("data/fechas.txt", ios::app);
 
-            archivoFechas << "JORNADA\n";
+static bool nuevaJornada = true;
+
+if (nuevaJornada) {
+    archivoFechas << "JORNADA=" << numeroJornada << "\n";
+    nuevaJornada = false;
+}
             archivoFechas << equipos[local - 1].nombre << ","
                           << equipos[visitante - 1].nombre << ","
                           << golesLocal << ","
                           << golesVisitante << endl;
-            archivoFechas << "FIN_JORNADA\n";
+           
 
             archivoFechas.close();
 
             cout << "Partido guardado correctamente\n";
+char opcionJornada;
+cout << "Desea iniciar nueva jornada? (s/n): ";
+cin >> opcionJornada;
 
+if (opcionJornada == 's') {
+    archivoFechas << "FIN_JORNADA\n";
+    numeroJornada++;
+    nuevaJornada = true;
+}
             break;
         }
 
         case 3: {
 
-            ifstream archivo("data/fechas.txt");
+    ifstream archivo("data/fechas.txt");
 
-            if (!archivo) {
-                cout << "Error al abrir fechas.txt\n";
-                break;
-            }
+    if (!archivo) {
+        cout << "Error al abrir fechas.txt\n";
+        break;
+    }
 
-            string linea;
+    string linea;
 
-            cout << "\n=== HISTORIAL DE JORNADAS ===\n";
+    cout << "\n=== HISTORIAL DE JORNADAS ===\n";
 
-            while (getline(archivo, linea)) {
+    while (getline(archivo, linea)) {
 
-                if (linea == "JORNADA") {
-                    cout << "\n--- Nueva Jornada ---\n";
-                }
-                else if (linea == "FIN_JORNADA") {
-                    cout << "----------------------\n";
-                }
-                else if (!linea.empty()) {
-
-                    stringstream ss(linea);
-                    string local, visitante;
-                    int golesLocal, golesVisitante;
-
-                    getline(ss, local, ',');
-                    getline(ss, visitante, ',');
-                    ss >> golesLocal;
-                    ss.ignore();
-                    ss >> golesVisitante;
-
-                    cout << local << " " << golesLocal
-                         << " - " << golesVisitante << " "
-                         << visitante << endl;
-                }
-            }
-
-            archivo.close();
-
-            break;
+        if (linea.find("JORNADA=") != string::npos) {
+            cout << "\n" << linea << endl;
         }
+        else if (linea.find("FECHA=") != string::npos) {
+            cout << linea << endl;
+        }
+        else if (linea == "FIN_JORNADA") {
+            cout << "----------------------\n";
+        }
+        else if (!linea.empty()) {
+
+            
+            stringstream ss(linea);
+            string local, visitante;
+            int golesLocal, golesVisitante;
+
+            getline(ss, local, ',');
+            getline(ss, visitante, ',');
+            ss >> golesLocal;
+            ss.ignore();
+            ss >> golesVisitante;
+
+            cout << local << " " << golesLocal
+                 << " - " << golesVisitante << " "
+                 << visitante << endl;
+        }
+    }
+
+    archivo.close();
+
+    break;
+}
 
         case 4: {
 
