@@ -149,7 +149,7 @@ int main() {
 
             archivo.close();
 
-            // 🔥 ORDENAR POR PUNTOS
+          
             sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
                 return a.puntos > b.puntos;
             });
@@ -256,10 +256,42 @@ for (int i = 0; i < equipos.size(); i++) {
             cout << "Mostrando jornadas...\n";
             break;
 
-        case 4:
-            cout << "Mostrando partidos...\n";
-            break;
+     case 4: {
 
+    ifstream archivo("data/partidos.txt");
+
+    if (!archivo) {
+        cout << "Error al abrir partidos.txt\n";
+        break;
+    }
+
+    string linea;
+
+    cout << "\n=== PARTIDOS JUGADOS ===\n";
+
+    while (getline(archivo, linea)) {
+
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+        string local, visitante;
+        int golesLocal, golesVisitante;
+
+        getline(ss, local, ',');
+        getline(ss, visitante, ',');
+        ss >> golesLocal;
+        ss.ignore();
+        ss >> golesVisitante;
+
+        cout << local << " " << golesLocal
+             << " - " << golesVisitante << " "
+             << visitante << endl;
+    }
+
+    archivo.close();
+
+    break;
+}
         case 5:
             cout << "Saliendo del programa...\n";
             break;
