@@ -154,13 +154,23 @@ int main() {
                 return a.puntos > b.puntos;
             });
 
+            ofstream archivoTabla("data/tabla.txt");
+
+if (!archivoTabla) {
+    cout << "Error al crear tabla.txt\n";
+}
+archivoTabla << "# Equipo PJ PG PE PP GF GC DG PTS\n";
+
             cout << "\n=== TABLA DE POSICIONES ===\n";
+cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
+
 cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
 
 for (int i = 0; i < equipos.size(); i++) {
 
     int DG = equipos[i].GF - equipos[i].GC;
 
+    // Muestro en consola :D
     cout << i + 1 << " "
          << equipos[i].nombre << " "
          << equipos[i].PJ << " "
@@ -172,7 +182,21 @@ for (int i = 0; i < equipos.size(); i++) {
          << DG << " "
          << equipos[i].puntos
          << endl;
+
+    //guardo en el archivo xdd
+    archivoTabla << i + 1 << " "
+                 << equipos[i].nombre << " "
+                 << equipos[i].PJ << " "
+                 << equipos[i].PG << " "
+                 << equipos[i].PE << " "
+                 << equipos[i].PP << " "
+                 << equipos[i].GF << " "
+                 << equipos[i].GC << " "
+                 << DG << " "
+                 << equipos[i].puntos
+                 << endl;
 }
+archivoTabla.close();
             break;
         }
 
