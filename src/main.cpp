@@ -151,8 +151,15 @@ int main() {
 
           
             sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
-                return a.puntos > b.puntos;
-            });
+
+    if (a.puntos != b.puntos)
+        return a.puntos > b.puntos;
+
+    int dgA = a.GF - a.GC;
+    int dgB = b.GF - b.GC;
+
+    return dgA > dgB;
+});
 
             ofstream archivoTabla("data/tabla.txt");
 
@@ -183,8 +190,8 @@ for (int i = 0; i < equipos.size(); i++) {
          << equipos[i].puntos
          << endl;
 
-    //guardo en el archivo xdd
-    archivoTabla << i + 1 << " "
+    //guardo en fechas mas adelant xd
+   /* archivoTabla << i + 1 << " "
                  << equipos[i].nombre << " "
                  << equipos[i].PJ << " "
                  << equipos[i].PG << " "
@@ -195,6 +202,7 @@ for (int i = 0; i < equipos.size(); i++) {
                  << DG << " "
                  << equipos[i].puntos
                  << endl;
+                 */
 }
 archivoTabla.close();
             break;
