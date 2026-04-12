@@ -73,14 +73,21 @@ void leerConfig(vector<Equipo>& equipos, int& puntosGanar, int& puntosEmpate, in
 
 void ordenarEquipos(vector<Equipo>& equipos) {
     sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
-        if (a.puntos != b.puntos)
-            return a.puntos > b.puntos;
 
-        int dgA = a.GF - a.GC;
-        int dgB = b.GF - b.GC;
+    // 1. Puntos
+    if (a.puntos != b.puntos)
+        return a.puntos > b.puntos;
 
+    // 2. Diferencia de goles
+    int dgA = a.GF - a.GC;
+    int dgB = b.GF - b.GC;
+
+    if (dgA != dgB)
         return dgA > dgB;
-    });
+
+    // 3. Goles a favor
+    return a.GF > b.GF;
+});
 }
 
 int main() {
