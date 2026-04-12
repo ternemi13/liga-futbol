@@ -17,13 +17,6 @@ struct Equipo {
     int puntos = 0;
 };
 
-struct Partido {
-    string local;
-    string visitante;
-    int golesLocal;
-    int golesVisitante;
-};
-
 int main() {
 
     int opcion;
@@ -74,14 +67,6 @@ int main() {
                 else if (clave == "equipo") {
                     Equipo nuevo;
                     nuevo.nombre = valor;
-                    nuevo.PJ = 0;
-                    nuevo.PG = 0;
-                    nuevo.PE = 0;
-                    nuevo.PP = 0;
-                    nuevo.GF = 0;
-                    nuevo.GC = 0;
-                    nuevo.puntos = 0;
-
                     equipos.push_back(nuevo);
                 }
             }
@@ -149,62 +134,53 @@ int main() {
 
             archivo.close();
 
-          
             sort(equipos.begin(), equipos.end(), [](Equipo a, Equipo b) {
+                if (a.puntos != b.puntos)
+                    return a.puntos > b.puntos;
 
-    if (a.puntos != b.puntos)
-        return a.puntos > b.puntos;
+                int dgA = a.GF - a.GC;
+                int dgB = b.GF - b.GC;
 
-    int dgA = a.GF - a.GC;
-    int dgB = b.GF - b.GC;
-
-    return dgA > dgB;
-});
+                return dgA > dgB;
+            });
 
             ofstream archivoTabla("data/tabla.txt");
 
-if (!archivoTabla) {
-    cout << "Error al crear tabla.txt\n";
-}
-archivoTabla << "# Equipo PJ PG PE PP GF GC DG PTS\n";
+            archivoTabla << "# Equipo PJ PG PE PP GF GC DG PTS\n";
 
-            cout << "\n=== TABLA DE POSICIONES ===\n";
-cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
+            cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
 
-cout << "\n# Equipo PJ PG PE PP GF GC DG PTS\n";
+            for (int i = 0; i < equipos.size(); i++) {
 
-for (int i = 0; i < equipos.size(); i++) {
+                int DG = equipos[i].GF - equipos[i].GC;
 
-    int DG = equipos[i].GF - equipos[i].GC;
+                cout << i + 1 << " "
+                     << equipos[i].nombre << " "
+                     << equipos[i].PJ << " "
+                     << equipos[i].PG << " "
+                     << equipos[i].PE << " "
+                     << equipos[i].PP << " "
+                     << equipos[i].GF << " "
+                     << equipos[i].GC << " "
+                     << DG << " "
+                     << equipos[i].puntos
+                     << endl;
 
-    // Muestro en consola :D
-    cout << i + 1 << " "
-         << equipos[i].nombre << " "
-         << equipos[i].PJ << " "
-         << equipos[i].PG << " "
-         << equipos[i].PE << " "
-         << equipos[i].PP << " "
-         << equipos[i].GF << " "
-         << equipos[i].GC << " "
-         << DG << " "
-         << equipos[i].puntos
-         << endl;
+                archivoTabla << i + 1 << " "
+                             << equipos[i].nombre << " "
+                             << equipos[i].PJ << " "
+                             << equipos[i].PG << " "
+                             << equipos[i].PE << " "
+                             << equipos[i].PP << " "
+                             << equipos[i].GF << " "
+                             << equipos[i].GC << " "
+                             << DG << " "
+                             << equipos[i].puntos
+                             << endl;
+            }
 
-    //guardo en fechas mas adelant xd
-   /* archivoTabla << i + 1 << " "
-                 << equipos[i].nombre << " "
-                 << equipos[i].PJ << " "
-                 << equipos[i].PG << " "
-                 << equipos[i].PE << " "
-                 << equipos[i].PP << " "
-                 << equipos[i].GF << " "
-                 << equipos[i].GC << " "
-                 << DG << " "
-                 << equipos[i].puntos
-                 << endl;
-                 */
-}
-archivoTabla.close();
+            archivoTabla.close();
+
             break;
         }
 
@@ -248,10 +224,7 @@ archivoTabla.close();
             int local, visitante;
             int golesLocal, golesVisitante;
 
-            cout << "Seleccione equipo local (numero): ";
             cin >> local;
-
-            cout << "Seleccione equipo visitante (numero): ";
             cin >> visitante;
 
             if (local == visitante) {
@@ -259,18 +232,10 @@ archivoTabla.close();
                 break;
             }
 
-            cout << "Goles del equipo local: ";
             cin >> golesLocal;
-
-            cout << "Goles del equipo visitante: ";
             cin >> golesVisitante;
 
             ofstream archivoSalida("data/partidos.txt", ios::app);
-
-            if (!archivoSalida) {
-                cout << "Error al guardar partido\n";
-                break;
-            }
 
             archivoSalida << equipos[local - 1].nombre << ","
                           << equipos[visitante - 1].nombre << ","
@@ -279,51 +244,99 @@ archivoTabla.close();
 
             archivoSalida.close();
 
+            
+            ofstream archivoFechas("data/fechas.txt", ios::app);
+
+            archivoFechas << "JORNADA\n";
+            archivoFechas << equipos[local - 1].nombre << ","
+                          << equipos[visitante - 1].nombre << ","
+                          << golesLocal << ","
+                          << golesVisitante << endl;
+            archivoFechas << "FIN_JORNADA\n";
+
+            archivoFechas.close();
+
             cout << "Partido guardado correctamente\n";
 
             break;
         }
 
-        case 3:
-            cout << "Mostrando jornadas...\n";
+        case 3: {
+
+            ifstream archivo("data/fechas.txt");
+
+            if (!archivo) {
+                cout << "Error al abrir fechas.txt\n";
+                break;
+            }
+
+            string linea;
+
+            cout << "\n=== HISTORIAL DE JORNADAS ===\n";
+
+            while (getline(archivo, linea)) {
+
+                if (linea == "JORNADA") {
+                    cout << "\n--- Nueva Jornada ---\n";
+                }
+                else if (linea == "FIN_JORNADA") {
+                    cout << "----------------------\n";
+                }
+                else if (!linea.empty()) {
+
+                    stringstream ss(linea);
+                    string local, visitante;
+                    int golesLocal, golesVisitante;
+
+                    getline(ss, local, ',');
+                    getline(ss, visitante, ',');
+                    ss >> golesLocal;
+                    ss.ignore();
+                    ss >> golesVisitante;
+
+                    cout << local << " " << golesLocal
+                         << " - " << golesVisitante << " "
+                         << visitante << endl;
+                }
+            }
+
+            archivo.close();
+
             break;
+        }
 
-     case 4: {
+        case 4: {
 
-    ifstream archivo("data/partidos.txt");
+            ifstream archivo("data/partidos.txt");
 
-    if (!archivo) {
-        cout << "Error al abrir partidos.txt\n";
-        break;
-    }
+            string linea;
 
-    string linea;
+            cout << "\n=== PARTIDOS JUGADOS ===\n";
 
-    cout << "\n=== PARTIDOS JUGADOS ===\n";
+            while (getline(archivo, linea)) {
 
-    while (getline(archivo, linea)) {
+                if (linea.empty()) continue;
 
-        if (linea.empty()) continue;
+                stringstream ss(linea);
+                string local, visitante;
+                int golesLocal, golesVisitante;
 
-        stringstream ss(linea);
-        string local, visitante;
-        int golesLocal, golesVisitante;
+                getline(ss, local, ',');
+                getline(ss, visitante, ',');
+                ss >> golesLocal;
+                ss.ignore();
+                ss >> golesVisitante;
 
-        getline(ss, local, ',');
-        getline(ss, visitante, ',');
-        ss >> golesLocal;
-        ss.ignore();
-        ss >> golesVisitante;
+                cout << local << " " << golesLocal
+                     << " - " << golesVisitante << " "
+                     << visitante << endl;
+            }
 
-        cout << local << " " << golesLocal
-             << " - " << golesVisitante << " "
-             << visitante << endl;
-    }
+            archivo.close();
 
-    archivo.close();
+            break;
+        }
 
-    break;
-}
         case 5:
             cout << "Saliendo del programa...\n";
             break;
