@@ -18,6 +18,48 @@ struct Equipo {
 };
 
 
+bool partidoExisteEnJornada(string eq1, string eq2) {
+
+    ifstream archivo("data/fechas.txt");
+    string linea;
+
+    vector<string> ultimaJornada;
+
+    
+    while (getline(archivo, linea)) {
+
+        if (linea.find("JORNADA=") != string::npos) {
+            ultimaJornada.clear(); 
+        }
+        else if (linea == "FIN_JORNADA") {
+            ultimaJornada.clear(); 
+        }
+        else if (!linea.empty()) {
+            ultimaJornada.push_back(linea);
+        }
+    }
+
+    archivo.close();
+
+    // revisaa la última jornada 
+    for (string linea : ultimaJornada) {
+
+        stringstream ss(linea);
+        string local, visitante;
+
+        getline(ss, local, ',');
+        getline(ss, visitante, ',');
+
+        if ((local == eq1 && visitante == eq2) ||
+            (local == eq2 && visitante == eq1)) {
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void actualizarEquipo(Equipo* eq, int gf, int gc, int puntosGanar, int puntosEmpate, int puntosPerder) {
 
     eq->PJ++;
@@ -238,13 +280,24 @@ cin >> local;
 cout << "Seleccione equipo visitante: ";
 cin >> visitante;
 
-
 if (local < 1 || local > equipos.size() ||
     visitante < 1 || visitante > equipos.size()) {
 
     cout << "Equipo invalido\n";
+
+    cin.clear();  
+cin.ignore(1000, '\n');  
     break;
 }
+string equipoLocal = equipos[local - 1].nombre;
+string equipoVisitante = equipos[visitante - 1].nombre;
+
+if (partidoExisteEnJornada(equipoLocal, equipoVisitante)) {
+    cout << "Este partido ya existe en la jornada actual\n";
+    break;
+}
+
+
 
             if (local == visitante) {
                 cout << "No pueden ser el mismo equipo\n";
