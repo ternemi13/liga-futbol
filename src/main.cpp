@@ -148,6 +148,7 @@ int main() {
         cout << "3. Ver jornadas\n";
         cout << "4. Ver partidos\n";
         cout << "5. Salir\n";
+        cout << "6. Historial entre equipos\n";
         cout << "Seleccione una opcion: ";
         cin >> opcion;
 
@@ -428,10 +429,106 @@ if (opcionJornada == 's') {
             break;
         }
 
+        case 6: {
+
+    ifstream archivo("data/partidos.txt");
+
+    if (!archivo) {
+        cout << "Error al abrir partidos.txt\n";
+        break;
+    }
+
+    ifstream archivoConfig("data/config.txt");
+    equipos.clear();
+    string linea;
+
+    while (getline(archivoConfig, linea)) {
+
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+        string clave, valor;
+
+        getline(ss, clave, '=');
+        getline(ss, valor);
+
+        if (clave == "equipo") {
+            Equipo nuevo;
+            nuevo.nombre = valor;
+            equipos.push_back(nuevo);
+        }
+    }
+
+    archivoConfig.close();
+
+    
+    cout << "\nEquipos disponibles:\n";
+    for (int i = 0; i < equipos.size(); i++) {
+        cout << i + 1 << ". " << equipos[i].nombre << endl;
+    }
+
+    int op1, op2;
+
+    cout << "Seleccione equipo 1: ";
+    cin >> op1;
+
+    cout << "Seleccione equipo 2: ";
+    cin >> op2;
+
+    
+    if (op1 < 1 || op1 > equipos.size() ||
+        op2 < 1 || op2 > equipos.size()) {
+
+        cout << "Equipo invalido\n";
+        break;
+    }
+
+    string eq1 = equipos[op1 - 1].nombre;
+    string eq2 = equipos[op2 - 1].nombre;
+
+    string local, visitante;
+    int gl, gv;
+
+    bool encontrado = false;
+
+    cout << "\n=== HISTORIAL DE ENFRENTAMIENTOS ===\n";
+
+    while (getline(archivo, linea)) {
+
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+
+        getline(ss, local, ',');
+        getline(ss, visitante, ',');
+        ss >> gl;
+        ss.ignore();
+        ss >> gv;
+
+        if ((local == eq1 && visitante == eq2) ||
+            (local == eq2 && visitante == eq1)) {
+
+            cout << local << " " << gl
+                 << " - " << gv << " "
+                 << visitante << endl;
+
+            encontrado = true;
+        }
+    }
+
+    if (!encontrado) {
+        cout << "No hay enfrentamientos registrados\n";
+    }
+
+    archivo.close();
+
+    break;
+}
+
         case 5:
             cout << "Saliendo del programa...\n";
             break;
-
+        
         default:
             cout << "Opcion invalida\n";
         }
