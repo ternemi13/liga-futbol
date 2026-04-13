@@ -1,7 +1,7 @@
 # Sistema de Liga de Fútbol
 
 ## Autor
-Juan Ann Andres Perez
+Juan  Andres Perez Rojas
 
 ## Descripción
 Aplicación en C++ que permite gestionar una liga de fútbol desde consola.  
